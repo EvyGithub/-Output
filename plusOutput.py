@@ -290,7 +290,7 @@ def interpret(file: str) -> None:
         move()
 
         # debug stuff, I would really recommend a wide terminal for this
-        print("Last command: " + cmd, f"(x, y): ({x}, {y})", f"Direction: {direction}", f"stack 0: {stack0}", f"stack 1: {stack1}", f"marked cell: {marked}", sep=" | ")
+        # print("Last command: " + cmd, f"(x, y): ({x}, {y})", f"Direction: {direction}", f"stack 0: {stack0}", f"stack 1: {stack1}", f"marked cell: {marked}", sep=" | ")
 
         # sleep(1/4)
 
