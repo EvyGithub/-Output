@@ -217,10 +217,13 @@ def interpret(file: str) -> None:
                 # unicode command;
                 # take a string and push its unicode characters left to right
                 # if it's a number, then push the unicode value instead
+                # if it's an empty string, push 0.
                 temp = stack.pop(-1)
                 if type(temp) == str:
                     for char in temp:
                         stack.append(ord(char))
+                    if not string:
+                        stack.append(0)
                 else:
                     stack.append(chr(temp))
             elif cmd == ".":
@@ -235,15 +238,15 @@ def interpret(file: str) -> None:
             elif cmd == "l":
                 # length of string
                 stack.append(len(stack.pop(-1)))
-            
+
             # 4. I/O
             elif cmd == "i":
                 # take a string of input from user
                 stack.append(input("Input? "))
             elif cmd == "o":
                 # print top item
-                print(stack.pop(-1))
-            
+                print(stack.pop(-1), end="")
+
             # Self-Modification
             elif cmd == "g":
                 # get character as string
@@ -275,7 +278,7 @@ def interpret(file: str) -> None:
                 if stack.pop(-1):
                     x, y = marked
             elif cmd == "_":
-                # right if zero, left otherwise
+                # right if zero or empty string, left otherwise
                 if not stack.pop(-1):
                     direction = (1, 0)
                 else:
@@ -287,7 +290,7 @@ def interpret(file: str) -> None:
         move()
 
         # debug stuff, I would really recommend a wide terminal for this
-        # print("Last command: " + cmd, f"(x, y): ({x}, {y})", f"Direction: {direction}", f"stack 0: {stack0}", f"stack 1: {stack1}", f"marked cell: {marked}", sep=" | ")
+        print("Last command: " + cmd, f"(x, y): ({x}, {y})", f"Direction: {direction}", f"stack 0: {stack0}", f"stack 1: {stack1}", f"marked cell: {marked}", sep=" | ")
 
         # sleep(1/4)
 
