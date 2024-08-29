@@ -7,12 +7,12 @@ direction = (1, 0) # start facing right
 y = x = 0          # start in upper left corner
 stack0 = []        # data storage
 stack1 = []        # data storage part 2
-DIRECTIONS = [(1, 0), (0, -1), (-1, 0), (0, 1)]
+DIRECTIONS = [(1, 0), (0, -1), (-1, 0), (0, 1)] # self-explanatory
 selectedStack = 0  # decides which stack is used (you can modify this using the ( and ) command)
 maxLenLine = ""    # stores the line with the longest length
 
 # swag functions
-def interpret(file: str) -> None:
+def interpret(file: str, debug: bool=False) -> None:
     global direction, x, y, stack0, stack1, selectedStack, maxLenLine, code
     with open(file, "r") as f:
         # process the 2D stuff and put it into a 2D list
@@ -22,15 +22,13 @@ def interpret(file: str) -> None:
     maxLenLine = sorted(code, key=len, reverse=True)[0]
 
     # fill in blank cells
-    for i in code:
-        try:
-            # try to access each spot and if an indexerror occurs then it needs to be filled
-            for index in range(len(maxLenLine)):
-                i[index]
-        except:
-            # fill in the blank with a space
-            # print("filled wank")
-            i.append(" ")
+    for line in code:
+        # try to access each spot and if an indexerror occurs then it needs to be filled
+        for index in range(len(maxLenLine)):
+            try:
+                line[index]
+            except:
+                line.append(" ")
 
     # print(code)
 
@@ -65,7 +63,7 @@ def interpret(file: str) -> None:
         if stringMode:
             # ignore what the character means and just add it to the string
             string += cmd
-        
+
         else:
             # push string if it's not empty
             if string != "":
@@ -142,7 +140,7 @@ def interpret(file: str) -> None:
                 # 2. move the second item top item places down
                 raise NotImplementedError("the V command is really useless and I have no idea how to implement it lol")
             # stringMode is implemented, check above
-            
+
             # 3. Arithmetic and Logic
             elif cmd == "!":
                 # bitwise not
@@ -159,7 +157,7 @@ def interpret(file: str) -> None:
                 temp1, temp2 = stack.pop(-1), stack.pop(-1)
                 stack.append(temp2 + temp1)
             elif cmd == "*":
-                # multiply
+                # multiply (works with strings)
                 stack.append(stack.pop(-1) * stack.pop(-1))
             elif cmd == "/":
                 # divide
@@ -183,7 +181,7 @@ def interpret(file: str) -> None:
                         stack.append(temp1)
                 elif type(temp2) == str:
                     # same as if temp1 == str, but you going reverse
-                    for _ in range(temp1):
+                    for _ in range(temp1): # type: ignore
                         stack.append(temp2)
                 else:
                     stack.append(temp2 ** temp1)
@@ -201,8 +199,7 @@ def interpret(file: str) -> None:
             elif cmd == "&":
                 # convert to float
                 try:
-                    number = stack.pop(-1)
-                    number = float(number)
+                    number = float(stack.pop(-1))
                     if number % 1 == 0:
                         number = int(number)
                     stack.append(number)
@@ -230,8 +227,13 @@ def interpret(file: str) -> None:
             elif cmd == ".":
                 # literally y.split(x) lol
                 temp1, temp2 = stack.pop(-1), stack.pop(-1)
-                if type(temp1) != str: temp1 = chr(temp1)
-                stack.append(temp2.split(temp1))
+                if temp1 == 0:
+                    listToAdd = list(temp2)
+                elif type(temp1) != str:
+                    listToAdd = temp2.split(chr(temp1))
+                elif type(temp1) == str:
+                    listToAdd = temp2.split(temp1)
+                stack += listToAdd
             elif cmd == ",":
                 # random number
                 temp1, temp2 = stack.pop(-1), stack.pop(-1)
@@ -269,7 +271,7 @@ def interpret(file: str) -> None:
                 # put character at location
                 codeY, codeX, value = stack.pop(-1), stack.pop(-1), stack.pop(-1)
                 code[codeY][codeX] = chr(value) if type(value) != str else value
-            
+
             # 5. Control Flow
             elif cmd == "[":
                 # mark current position
@@ -291,9 +293,10 @@ def interpret(file: str) -> None:
         move()
 
         # debug stuff, I would really recommend a wide terminal for this
-        #print("Last command: " + cmd, f"(x, y): ({x}, {y})", f"Direction: {direction}", f"stack 0: {stack0}", f"stack 1: {stack1}", f"marked cell: {marked}", sep=" | ")
+        if debug: print("last cmd: " + cmd, f"(x, y): ({x}, {y})", f"dir: {direction}", f"stack 0: {stack0}", f"stack 1: {stack1}", f"marked cell: {marked}", sep=" | ")
+        # print("\n".join(code[0]))
 
-        # sleep(1/4)
+        # sleep(0)
 
 def move() -> None:
     global direction, x, y, code
@@ -315,7 +318,7 @@ def move() -> None:
         # bottom -> top
         y = 0
 
-try:
-    interpret(sys.argv[1])
-except:
-    print("error: give a valid file pls")
+if __name__ == "__main__":
+    # if len(sys.argv) == 1: exit("provide a .poutput file pls")
+    # interpret(sys.argv[1])
+    interpret("batboxOutput.poutput", debug=False)
